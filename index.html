@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khảo sát sự hài lòng của Người dân - UBND xã Hàm Thuận, tỉnh Lâm Đồng</title>
+
+    <!-- =====================================================================
+         KHU VỰC 1: ĐỊNH DẠNG GIAO DIỆN (CSS)
+         - Anh có thể đổi màu sắc ở phần ":root" bên dưới.
+         - Các phần khác giữ nguyên là chạy tốt trên cả điện thoại lẫn máy tính.
+    ====================================================================== -->
+    <style>
+        :root {
+            --gov-blue: #0056b3;     /* Màu xanh chủ đạo (tiêu đề, nút bấm) */
+            --gov-red: #da251d;      /* Màu đỏ (viền, dấu * bắt buộc) */
+            --gov-green: #1e7e34;    /* Màu xanh lá (phần đăng ký hỗ trợ) */
+            --bg-light: #f4f6f9;     /* Màu nền trang */
+            --text-dark: #212529;    /* Màu chữ chính */
+            --border-color: #ced4da; /* Màu viền ô nhập */
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px 10px;
+        }
+        .container {
+            max-width: 650px;
+            background: #ffffff;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-top: 6px solid var(--gov-red);
+        }
+        .header {
+            background: linear-gradient(135deg, #004494, var(--gov-blue));
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 20px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+        }
+        .header p { font-size: 14px; opacity: 0.9; font-style: italic; }
+        .instruction {
+            background-color: #e8f4fd; padding: 15px 20px; font-size: 13.5px;
+            border-bottom: 1px solid #d2e6f7; color: #1e4e79; text-align: justify;
+        }
+        form { padding: 25px 20px; }
+        .section-title {
+            font-size: 15px; color: var(--gov-blue); text-transform: uppercase;
+            border-left: 4px solid var(--gov-red); padding-left: 10px;
+            margin: 20px 0 15px 0; font-weight: 700;
+        }
+        .section-title:first-of-type { margin-top: 0; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        .required { color: var(--gov-red); margin-left: 3px; }
+        input[type="text"], input[type="tel"], select, textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color);
+            border-radius: 4px; font-family: inherit; font-size: 14px;
+            outline: none; transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--gov-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+        }
+        .matrix-question {
+            margin-bottom: 15px; background: #fff; border: 1px solid #e9ecef;
+            border-radius: 6px; padding: 12px;
+        }
+        .matrix-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333; }
+        .matrix-options {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; text-align: center;
+        }
+        .matrix-cell {
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 11px; color: #666; cursor: pointer;
+        }
+        .matrix-cell input { margin-bottom: 4px; accent-color: var(--gov-blue); }
+
+        /* --- Định dạng riêng cho PHẦN IV: Đăng ký hỗ trợ --- */
+        .support-toggle {
+            background: #eaf7ee; border: 1px solid #b8e0c4; border-radius: 6px;
+            padding: 14px; display: flex; align-items: flex-start; cursor: pointer;
+        }
+        .support-toggle input { margin-right: 10px; margin-top: 3px; width: 18px; height: 18px; accent-color: var(--gov-green); flex-shrink: 0; }
+        .support-toggle .toggle-text strong { color: var(--gov-green); font-size: 14.5px; }
+        .support-toggle .toggle-text small { display: block; color: #555; font-size: 12.5px; margin-top: 2px; }
+        /* Khối các ô nhập hỗ trợ: MẶC ĐỊNH ẨN, chỉ hiện khi tích ô ở trên */
+        .support-fields {
+            display: none;            /* ẩn ban đầu */
+            margin-top: 15px; padding: 15px; border-radius: 6px;
+            background: #f8fdf9; border: 1px dashed var(--gov-green);
+        }
+        .support-fields.active { display: block; }  /* class "active" do JS thêm vào để hiện ra */
+
+        button[type="submit"] {
+            background-color: var(--gov-blue); color: white; border: none;
+            padding: 14px 20px; font-size: 16px; font-weight: 700; border-radius: 4px;
+            cursor: pointer; width: 100%; transition: background-color 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        button[type="submit"]:hover { background-color: #004494; }
+        button[type="submit"]:disabled { background-color: #6c757d; cursor: not-allowed; }
+        .footer {
+            text-align: center; padding: 20px; font-size: 12px; color: #6c757d;
+            border-top: 1px solid #e9ecef; background: #f8f9fa;
+        }
+
+        /* --- Màn hình thông báo cảm ơn sau khi gửi thành công --- */
+        .success-overlay {
+            display: none; position: fixed; inset: 0; z-index: 999;
+            background: rgba(0,0,0,0.55); align-items: center; justify-content: center; padding: 20px;
+        }
+        .success-overlay.active { display: flex; }
+        .success-card {
+            background: #fff; border-radius: 10px; max-width: 420px; width: 100%;
+            padding: 35px 25px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .success-card .check {
+            width: 70px; height: 70px; border-radius: 50%; background: #e6f7ec;
+            color: var(--gov-green); font-size: 38px; line-height: 70px; margin: 0 auto 15px;
+        }
+        .success-card h2 { color: var(--gov-green); font-size: 19px; margin-bottom: 10px; }
+        .success-card p { font-size: 14px; color: #444; margin-bottom: 20px; }
+        .success-card button {
+            background: var(--gov-blue); color: #fff; border: none; padding: 10px 24px;
+            border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+
+        /* --- Tự co giãn cho màn hình điện thoại nhỏ --- */
+        @media(max-width: 480px) {
+            .matrix-options { grid-template-columns: 1fr; text-align: left; gap: 8px; padding-left: 5px; }
+            .matrix-cell { flex-direction: row; font-size: 13px; }
+            .matrix-cell input { margin-bottom: 0; margin-right: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- =================================================================
+         KHU VỰC 2: TIÊU ĐỀ TRANG
+         - Anh sửa tên cơ quan / dòng giới thiệu tại đây.
+    ================================================================== -->
+    <div class="header">
+        <h1>Khảo Sát Sự Hài Lòng Của Người Dân</h1>
+        <p>Đối với sự phục vụ của Ủy ban nhân dân xã Hàm Thuận, tỉnh Lâm Đồng</p>
+    </div>
+
+    <div class="instruction">
+        Xin vui lòng dành ít phút đóng góp ý kiến để giúp cơ quan không ngừng nâng cao chất lượng cải cách thủ tục hành chính, cải thiện tinh thần và thái độ phục vụ nhân dân ngày một tốt hơn.
+    </div>
+
+    <!-- =================================================================
+         KHU VỰC 3: BIỂU MẪU KHẢO SÁT
+    ================================================================== -->
+    <form id="sipasForm">
+
+        <!-- ----- PHẦN I: THÔNG TIN CHUNG ----- -->
+        <div class="section-title">Phần I: Thông tin chung</div>
+
+        <div class="form-group">
+            <label for="hoTen">Họ và tên người dân / tổ chức (Không bắt buộc):</label>
+            <input type="text" id="hoTen" name="hoTen" placeholder="Nhập họ tên nếu muốn...">
+        </div>
+
+        <div class="form-group">
+            <label for="dienThoai">Số điện thoại liên hệ (Không bắt buộc):</label>
+            <input type="tel" id="dienThoai" name="dienThoai" placeholder="Nhập số điện thoại...">
+        </div>
+
+        <div class="form-group">
+            <label for="linhVuc">Lĩnh vực thủ tục hành chính vừa thực hiện:<span class="required">*</span></label>
+            <!-- THÊM / SỬA / BỚT lĩnh vực: thêm bớt các dòng <option> bên dưới -->
+            <select id="linhVuc" name="linhVuc" required>
+                <option value="">-- Vui lòng chọn lĩnh vực --</option>
+                <option value="Tư pháp - Hộ tịch">Tư pháp - Hộ tịch (Khai sinh, kết hôn, chứng thực...)</option>
+                <option value="Địa chính - Đất đai">Địa chính - Đất đai - Môi trường</option>
+                <option value="Lao động - Thương binh">Lao động - Thương binh và Xã hội</option>
+                <option value="Xây dựng - Nhà ở">Xây dựng - Nhà ở - Đô thị</option>
+                <option value="Công an xã">Công an xã (Hộ khẩu, định danh điện tử...)</option>
+                <option value="Lĩnh vực khác">Lĩnh vực khác</option>
+            </select>
+        </div>
+
+        <!-- ----- PHẦN II: ĐÁNH GIÁ THEO TIÊU CHUẨN SIPAS ----- -->
+        <!-- Mỗi câu là 1 khối ".matrix-question".
+             Muốn THÊM câu hỏi: copy nguyên 1 khối, đổi số thứ tự và đổi name="q7", "q8"...
+             Lưu ý: name của từng câu phải KHÁC NHAU (q1, q2, q3...) thì kết quả mới ghi đúng cột. -->
+        <div class="section-title">Phần II: Ý kiến đánh giá (Tiêu chuẩn SIPAS)</div>
+
+        <div class="matrix-question">
+            <div class="matrix-label">1. Cơ sở vật chất, trang thiết bị tại Bộ phận Một cửa khang trang, đáp ứng tốt nhu cầu của người dân:<span class="required">*</span></div>
+            <div class="matrix-options">
+                <label class="matrix-cell"><input type="radio" name="q1" value="5" required>Rất hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q1" value="4">Hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q1" value="3">Bình thường</label>
+                <label class="matrix-cell"><input type="radio" name="q1" value="2">Không hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q1" value="1">Rất không hài lòng</label>
+            </div>
+        </div>
+
+        <div class="matrix-question">
+            <div class="matrix-label">2. Các thủ tục hành chính được niêm yết công khai đầy đủ, rõ ràng, dễ tra cứu:<span class="required">*</span></div>
+            <div class="matrix-options">
+                <label class="matrix-cell"><input type="radio" name="q2" value="5" required>Rất hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q2" value="4">Hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q2" value="3">Bình thường</label>
+                <label class="matrix-cell"><input type="radio" name="q2" value="2">Không hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q2" value="1">Rất không hài lòng</label>
+            </div>
+        </div>
+
+        <div class="matrix-question">
+            <div class="matrix-label">3. Tác phong, thái độ giao tiếp của Cán bộ, công chức lịch sự, lịch thiệp và tôn trọng nhân dân:<span class="required">*</span></div>
+            <div class="matrix-options">
+                <label class="matrix-cell"><input type="radio" name="q3" value="5" required>Rất hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q3" value="4">Hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q3" value="3">Bình thường</label>
+                <label class="matrix-cell"><input type="radio" name="q3" value="2">Không hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q3" value="1">Rất không hài lòng</label>
+            </div>
+        </div>
+
+        <div class="matrix-question">
+            <div class="matrix-label">4. Công chức hướng dẫn hồ sơ rõ ràng, đầy đủ, chỉ yêu cầu bổ sung tối đa 1 lần:<span class="required">*</span></div>
+            <div class="matrix-options">
+                <label class="matrix-cell"><input type="radio" name="q4" value="5" required>Rất hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q4" value="4">Hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q4" value="3">Bình thường</label>
+                <label class="matrix-cell"><input type="radio" name="q4" value="2">Không hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q4" value="1">Rất không hài lòng</label>
+            </div>
+        </div>
+
+        <div class="matrix-question">
+            <div class="matrix-label">5. Kết quả giải quyết hồ sơ thủ tục hành chính được trả đúng hạn hoặc sớm hơn so với giấy hẹn:<span class="required">*</span></div>
+            <div class="matrix-options">
+                <label class="matrix-cell"><input type="radio" name="q5" value="5" required>Rất hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q5" value="4">Hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q5" value="3">Bình thường</label>
+                <label class="matrix-cell"><input type="radio" name="q5" value="2">Không hài lòng</label>
+                <label class="matrix-cell"><input type="radio" name="q5" value="1">Rất không hài lòng</label>
+            </div>
+        </div>
+
+        <div class="matrix-question">
+            <div class="matrix-label">6. Cơ quan không phát sinh tình trạng gây phiền hà, sách nhiễu hoặc gợi ý nộp thêm tiền ngoài quy định:<span class="required">*</span></div>
+            <div class="matrix-options">
+                <label class="matrix-cell"><input type="radio" name="q6" value="5" required>Rất đồng ý</label>
+                <label class="matrix-cell"><input type="radio" name="q6" value="4">Đồng ý</label>
+                <label class="matrix-cell"><input type="radio" name="q6" value="3">Bình thường</label>
+                <label class="matrix-cell"><input type="radio" name="q6" value="2">Không đồng ý</label>
+                <label class="matrix-cell"><input type="radio" name="q6" value="1">Phản đối</label>
+            </div>
+        </div>
+
+        <!-- ----- PHẦN III: GÓP Ý KHÁC ----- -->
+        <div class="section-title">Phần III: Ý kiến đóng góp khác</div>
+        <div class="form-group">
+            <label for="gopY">Ông/Bà có đề xuất, giải pháp gì để cơ quan phục vụ tốt hơn không?</label>
+            <textarea id="gopY" name="gopY" rows="4" placeholder="Nhập ý kiến đóng góp, phản ánh (nếu có)..."></textarea>
+        </div>
+
+        <!-- =============================================================
+             ----- PHẦN IV: ĐĂNG KÝ NHẬN HỖ TRỢ (PHẦN MỚI THÊM) -----
+             Mặc định khối ô nhập bị ẨN. Người dân tích vào ô bên dưới
+             thì JS sẽ hiện khối ".support-fields" ra.
+        ============================================================== -->
+        <div class="section-title">Phần IV: Đăng ký nhận hỗ trợ thông tin</div>
+
+        <!-- Ô tích chọn bật/tắt phần hỗ trợ -->
+        <label class="support-toggle" for="canHoTro">
+            <input type="checkbox" id="canHoTro" name="canHoTro">
+            <span class="toggle-text">
+                <strong>Tôi cần được hỗ trợ, tư vấn thêm thông tin.</strong>
+                <small>Tích vào ô này nếu Ông/Bà muốn cán bộ liên hệ lại để hướng dẫn, hỗ trợ. Vui lòng để lại thông tin bên dưới.</small>
+            </span>
+        </label>
+
+        <!-- Khối ô nhập hỗ trợ (ẩn cho tới khi tích ô ở trên) -->
+        <div class="support-fields" id="supportFields">
+
+            <div class="form-group">
+                <label for="htHoTen">Họ và tên người cần hỗ trợ:<span class="required">*</span></label>
+                <input type="text" id="htHoTen" name="htHoTen" placeholder="Nhập họ và tên...">
+            </div>
+
+            <div class="form-group">
+                <label for="htDienThoai">Số điện thoại / Zalo liên hệ:<span class="required">*</span></label>
+                <input type="tel" id="htDienThoai" name="htDienThoai" placeholder="Số để cán bộ gọi lại...">
+            </div>
+
+            <div class="form-group">
+                <label for="htDiaChi">Địa chỉ (thôn/khu phố):</label>
+                <input type="text" id="htDiaChi" name="htDiaChi" placeholder="Ví dụ: Thôn..., xã Hàm Thuận...">
+            </div>
+
+            <div class="form-group">
+                <label for="htLinhVuc">Lĩnh vực cần được hỗ trợ:<span class="required">*</span></label>
+                <!-- Danh sách lĩnh vực hỗ trợ — anh có thể sửa/thêm <option> như Phần I -->
+                <select id="htLinhVuc" name="htLinhVuc">
+                    <option value="">-- Chọn lĩnh vực cần hỗ trợ --</option>
+                    <option value="Tư pháp - Hộ tịch">Tư pháp - Hộ tịch</option>
+                    <option value="Địa chính - Đất đai">Địa chính - Đất đai - Môi trường</option>
+                    <option value="Lao động - Thương binh">Lao động - Thương binh và Xã hội</option>
+                    <option value="Xây dựng - Nhà ở">Xây dựng - Nhà ở - Đô thị</option>
+                    <option value="Công an xã">Công an xã (Hộ khẩu, định danh điện tử...)</option>
+                    <option value="Chế độ - Chính sách">Chế độ - Chính sách</option>
+                    <option value="Lĩnh vực khác">Lĩnh vực khác</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="htNoiDung">Nội dung cụ thể cần hỗ trợ:</label>
+                <textarea id="htNoiDung" name="htNoiDung" rows="3" placeholder="Mô tả ngắn gọn việc Ông/Bà đang vướng mắc..."></textarea>
+            </div>
+        </div>
+
+        <!-- Nút gửi -->
+        <button type="submit" id="submitBtn" style="margin-top:10px;">GỬI Ý KIẾN ĐÁNH GIÁ</button>
+    </form>
+
+    <div class="footer">
+        Hệ thống khảo sát điện tử trực tuyến - Áp dụng Cơ chế Một cửa cấp cơ sở.
+    </div>
+</div>
+
+<!-- =================================================================
+     KHU VỰC 4: MÀN HÌNH CẢM ƠN (hiện lên khi gửi xong)
+================================================================== -->
+<div class="success-overlay" id="successOverlay">
+    <div class="success-card">
+        <div class="check">&#10004;</div>
+        <h2>Gửi thành công!</h2>
+        <p>Cảm ơn Ông/Bà đã tham gia khảo sát và đóng góp ý kiến xây dựng chính quyền. Trường hợp có đăng ký hỗ trợ, cán bộ sẽ liên hệ lại trong thời gian sớm nhất.</p>
+        <button type="button" id="closeSuccess">Đóng</button>
+    </div>
+</div>
+
+<!-- =================================================================
+     KHU VỰC 5: XỬ LÝ DỮ LIỆU (JavaScript)
+================================================================== -->
+<script>
+    /* -----------------------------------------------------------------
+       (1) DÁN LINK GOOGLE APPS SCRIPT VÀO ĐÂY
+       Sau khi triển khai (Deploy) Web App từ file Code.gs, anh sẽ nhận
+       được một đường link kết thúc bằng "/exec". Dán đè vào dòng dưới.
+    ------------------------------------------------------------------ */
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8FQ7Cf7hhw9EmB908LpFcK1i6oTBHGunfc59CugNduYuMfsn0JPjhAP20Ub0jZtxr/exec';
+
+    /* -----------------------------------------------------------------
+       (2) BẬT/TẮT PHẦN HỖ TRỢ
+       Khi người dân tích ô "canHoTro": hiện khối ô nhập + tự điền sẵn
+       họ tên, SĐT đã nhập ở Phần I (nếu có) cho tiện.
+    ------------------------------------------------------------------ */
+    const chkCanHoTro = document.getElementById('canHoTro');
+    const supportFields = document.getElementById('supportFields');
+
+    chkCanHoTro.addEventListener('change', function () {
+        if (this.checked) {
+            supportFields.classList.add('active');   // hiện khối hỗ trợ
+            // Tự sao chép họ tên / SĐT từ Phần I sang nếu các ô hỗ trợ còn trống
+            const ten = document.getElementById('hoTen').value;
+            const sdt = document.getElementById('dienThoai').value;
+            if (ten && !document.getElementById('htHoTen').value) document.getElementById('htHoTen').value = ten;
+            if (sdt && !document.getElementById('htDienThoai').value) document.getElementById('htDienThoai').value = sdt;
+        } else {
+            supportFields.classList.remove('active'); // ẩn khối hỗ trợ
+        }
+    });
+
+    /* -----------------------------------------------------------------
+       (3) XỬ LÝ KHI BẤM NÚT GỬI
+    ------------------------------------------------------------------ */
+    document.getElementById('sipasForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // chặn việc tải lại trang mặc định
+
+        // 3.1 - Nếu có tích "cần hỗ trợ" thì kiểm tra các trường bắt buộc của Phần IV
+        if (chkCanHoTro.checked) {
+            const htTen = document.getElementById('htHoTen').value.trim();
+            const htSdt = document.getElementById('htDienThoai').value.trim();
+            const htLv  = document.getElementById('htLinhVuc').value;
+            if (!htTen || !htSdt || !htLv) {
+                alert('Ông/Bà đã chọn cần hỗ trợ. Vui lòng nhập đủ: Họ tên, Số điện thoại và Lĩnh vực cần hỗ trợ.');
+                return; // dừng lại, không gửi
+            }
+        }
+
+        // 3.2 - Đổi trạng thái nút thành "đang gửi"
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerText = 'ĐANG GỬI DỮ LIỆU...';
+        submitBtn.disabled = true;
+
+        // 3.3 - Gom toàn bộ dữ liệu thành 1 đối tượng để gửi đi
+        //       (tên thuộc tính bên trái phải KHỚP với tên cột xử lý trong Code.gs)
+        const formData = {
+            hoTen:      document.getElementById('hoTen').value,
+            dienThoai:  document.getElementById('dienThoai').value,
+            linhVuc:    document.getElementById('linhVuc').value,
+            q1: document.querySelector('input[name="q1"]:checked').value,
+            q2: document.querySelector('input[name="q2"]:checked').value,
+            q3: document.querySelector('input[name="q3"]:checked').value,
+            q4: document.querySelector('input[name="q4"]:checked').value,
+            q5: document.querySelector('input[name="q5"]:checked').value,
+            q6: document.querySelector('input[name="q6"]:checked').value,
+            gopY:       document.getElementById('gopY').value,
+            // --- Dữ liệu Phần IV: đăng ký hỗ trợ ---
+            canHoTro:   chkCanHoTro.checked ? 'Có' : 'Không',
+            htHoTen:    document.getElementById('htHoTen').value,
+            htDienThoai:document.getElementById('htDienThoai').value,
+            htDiaChi:   document.getElementById('htDiaChi').value,
+            htLinhVuc:  document.getElementById('htLinhVuc').value,
+            htNoiDung:  document.getElementById('htNoiDung').value
+        };
+
+        // 3.4 - Gửi dữ liệu sang Google Apps Script.
+        //       Dùng mode "no-cors" để tránh lỗi chặn trình duyệt — đây là cách
+        //       ổn định nhất khi web đặt trên GitHub Pages gửi sang Apps Script.
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(formData)
+        })
+        .then(function () {
+            // Gửi xong: hiện màn hình cảm ơn, làm sạch biểu mẫu
+            document.getElementById('successOverlay').classList.add('active');
+            document.getElementById('sipasForm').reset();
+            supportFields.classList.remove('active'); // ẩn lại phần hỗ trợ
+            submitBtn.innerText = 'GỬI Ý KIẾN ĐÁNH GIÁ';
+            submitBtn.disabled = false;
+        })
+        .catch(function (error) {
+            console.error('Lỗi kết nối:', error);
+            alert('Hệ thống bận hoặc chưa cấu hình link Apps Script. Vui lòng thử lại sau.');
+            submitBtn.innerText = 'GỬI Ý KIẾN ĐÁNH GIÁ';
+            submitBtn.disabled = false;
+        });
+    });
+
+    /* -----------------------------------------------------------------
+       (4) NÚT ĐÓNG màn hình cảm ơn
+    ------------------------------------------------------------------ */
+    document.getElementById('closeSuccess').addEventListener('click', function () {
+        document.getElementById('successOverlay').classList.remove('active');
+    });
+</script>
+
+</body>
+</html>
